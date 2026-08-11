@@ -8,7 +8,7 @@ Los tres enlaces públicos de Enketo sirven para responder los formularios, pero
 
 1. Un token de API de Kobo con permiso de lectura sobre los tres proyectos.
 2. El `asset UID` de cada proyecto: estudiantes, docentes y directivos.
-3. Una cadena secreta aleatoria para seudonimizar los identificadores, guardada como `HFC_HASH_SALT`.
+3. Opcionalmente, una cadena secreta aleatoria para seudonimizar los identificadores, guardada como `HFC_HASH_SALT`. Si se omite, el proceso usa el token como clave estable sin publicarlo.
 
 El token se obtiene en `https://eu.kobotoolbox.org/token/?format=json` después de iniciar sesión. El `asset UID` aparece en la URL del proyecto, después de `/forms/`, por ejemplo:
 
@@ -25,7 +25,7 @@ No pegue el token en `forms.json`, en el código o en un commit. Para GitHub, ag
 | Tipo | Nombre | Contenido |
 |---|---|---|
 | Secret | `KOBO_API_TOKEN` | Token personal de Kobo |
-| Secret | `HFC_HASH_SALT` | Cadena aleatoria de al menos 32 caracteres |
+| Secret opcional | `HFC_HASH_SALT` | Cadena aleatoria de al menos 32 caracteres |
 | Variable | `KOBO_STUDENT_ASSET_UID` | UID del proyecto de estudiantes |
 | Variable | `KOBO_TEACHER_ASSET_UID` | UID del proyecto de docentes |
 | Variable | `KOBO_DIRECTOR_ASSET_UID` | UID del proyecto de directivos |
@@ -87,7 +87,7 @@ Cuando hay metas, el tablero calcula avance total y por escuela. Sin metas, mues
 Esta carpeta está preparada para funcionar como la raíz de un repositorio independiente:
 
 1. Cree un repositorio y copie el contenido de `Analysis/HFCs/` a su raíz.
-2. Agregue los dos secretos y las tres variables indicadas arriba.
+2. Agregue `KOBO_API_TOKEN`, las tres variables y, si desea una clave separada, `HFC_HASH_SALT`.
 3. En **Settings > Pages > Build and deployment**, seleccione **GitHub Actions**.
 4. Haga un push a `main` o ejecute manualmente **Actualizar tablero HFC** desde la pestaña Actions.
 
