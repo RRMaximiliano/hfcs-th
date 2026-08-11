@@ -1,0 +1,6 @@
+[
+  {"_id": 201, "_uuid": "uuid-t-201", "_submission_time": "2026-08-08T15:00:00Z", "teacher_id": "28111001", "school_id": "LR-001", "school_name": "Escuela Primaria Norte", "province": "La Rioja", "grade_taught": "1 2", "enumerator_id": "APL-01", "duration_minutes": "21.3", "duration_flag_long": "0"},
+  {"_id": 202, "_uuid": "uuid-t-202", "_submission_time": "2026-08-08T15:32:00Z", "teacher_id": "28111001", "school_id": "LR-001", "school_name": "Escuela Primaria Norte", "province": "La Rioja", "grade_taught": "1 2", "enumerator_id": "APL-02", "duration_minutes": "22.0", "duration_flag_long": "0"},
+  {"_id": 203, "_uuid": "uuid-t-203", "_submission_time": "2026-08-09T14:17:00Z", "teacher_id": "28222002", "school_id": "CBA-014", "school_name": "Escuela República", "province": "Córdoba", "grade_taught": "3", "enumerator_id": "APL-03", "duration_minutes": "27.4", "duration_flag_long": "1"},
+  {"_id": 204, "_uuid": "uuid-t-204", "_submission_time": "2026-08-10T16:00:00Z", "teacher_id": "28333003", "school_id": "MZA-007", "school_name": "Escuela del Sol", "province": "Mendoza", "grade_taught": "2", "enumerator_id": "APL-04", "duration_minutes": "20.8", "duration_flag_long": "0"}
+]

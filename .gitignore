@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.DS_Store
+private/
+raw/
+*.xlsx
+*.xls
+.env
+_site/
+data/dashboard.json

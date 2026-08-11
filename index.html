@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f4f6f3" />
+    <meta name="description" content="Monitoreo de campo y controles de alta frecuencia para Todos Humanos." />
+    <title>Monitoreo de campo | Todos Humanos</title>
+    <link rel="stylesheet" href="assets/styles.css" />
+    <script src="assets/app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Saltar al contenido</a>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Navegación principal">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">TH</span>
+          <span>
+            <strong>Todos Humanos</strong>
+            <small>Monitoreo de campo</small>
+          </span>
+        </div>
+
+        <nav class="nav-list" id="primary-nav">
+          <button class="nav-item is-active" type="button" data-view="overview" aria-current="page">
+            <span>Resumen</span><span class="nav-count" id="nav-total">...</span>
+          </button>
+          <button class="nav-item" type="button" data-view="schools"><span>Escuelas</span></button>
+          <button class="nav-item" type="button" data-view="grades"><span>Grados</span></button>
+          <button class="nav-item" type="button" data-view="duplicates"><span>Duplicados</span></button>
+          <button class="nav-item" type="button" data-view="enumerators"><span>Aplicadores</span></button>
+          <button class="nav-item" type="button" data-view="submissions"><span>Envíos recientes</span></button>
+        </nav>
+
+        <div class="sidebar-foot">
+          <p>Los identificadores visibles son seudónimos. El sitio no publica DNI ni respuestas individuales.</p>
+          <button class="text-button" id="theme-toggle" type="button">Cambiar tema</button>
+        </div>
+      </aside>
+
+      <main class="main" id="main-content">
+        <header class="topbar">
+          <div>
+            <p class="context-label">Línea de base 2026</p>
+            <h1 id="view-title">Resumen operativo</h1>
+          </div>
+          <div class="sync-meta" aria-live="polite">
+            <span class="status-indicator" aria-hidden="true"></span>
+            <span><strong id="sync-status">Cargando datos</strong><small id="sync-time">Espere un momento</small></span>
+          </div>
+        </header>
+
+        <section class="filters" aria-label="Filtros del tablero">
+          <label>
+            <span>Provincia</span>
+            <select id="province-filter"><option value="">Todas</option></select>
+          </label>
+          <label>
+            <span>Escuela</span>
+            <select id="school-filter"><option value="">Todas</option></select>
+          </label>
+          <label>
+            <span>Población</span>
+            <select id="role-filter">
+              <option value="">Todas</option>
+              <option value="students">Estudiantes</option>
+              <option value="teachers">Docentes</option>
+              <option value="directors">Directivos</option>
+            </select>
+          </label>
+          <label class="search-field">
+            <span>Buscar</span>
+            <input id="search-filter" type="search" placeholder="Escuela, caso o aplicador" autocomplete="off" />
+          </label>
+          <button class="secondary-button" id="clear-filters" type="button">Limpiar</button>
+        </section>
+
+        <div id="app-content" aria-live="polite" aria-busy="true">
+          <div class="skeleton-grid" aria-label="Cargando indicadores">
+            <div class="skeleton-block"></div><div class="skeleton-block"></div>
+            <div class="skeleton-block"></div><div class="skeleton-block"></div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

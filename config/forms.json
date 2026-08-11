@@ -1,0 +1,62 @@
+{
+  "api_base": "https://eu.kobotoolbox.org",
+  "forms": [
+    {
+      "key": "students",
+      "label": "Estudiantes",
+      "asset_uid": "${KOBO_STUDENT_ASSET_UID}",
+      "asset_uid_env": "KOBO_STUDENT_ASSET_UID",
+      "public_form_url": "https://ee-eu.kobotoolbox.org/x/d80detYl",
+      "duplicate_scope": ["participant_key"],
+      "fields": {
+        "participant_id": ["student_id", "student_id_lookup", "student_id_input"],
+        "school_id": ["school_id"],
+        "school_name": ["school_name"],
+        "province": ["province"],
+        "grade": ["grade", "student_grade_self"],
+        "enumerator": ["enumerator_id"],
+        "timestamp": ["_submission_time", "end", "start"],
+        "duration_minutes": ["duration_minutes"],
+        "duration_flag_long": ["duration_flag_long"]
+      }
+    },
+    {
+      "key": "teachers",
+      "label": "Docentes",
+      "asset_uid": "${KOBO_TEACHER_ASSET_UID}",
+      "asset_uid_env": "KOBO_TEACHER_ASSET_UID",
+      "public_form_url": "https://ee-eu.kobotoolbox.org/x/nj3prU9G",
+      "duplicate_scope": ["participant_key", "school_id"],
+      "fields": {
+        "participant_id": ["teacher_id", "teacher_id_input"],
+        "school_id": ["school_id"],
+        "school_name": ["school_name"],
+        "province": ["province"],
+        "grade": ["grade_taught"],
+        "enumerator": ["enumerator_id"],
+        "timestamp": ["_submission_time", "end", "start"],
+        "duration_minutes": ["duration_minutes"],
+        "duration_flag_long": ["duration_flag_long"]
+      }
+    },
+    {
+      "key": "directors",
+      "label": "Directivos",
+      "asset_uid": "${KOBO_DIRECTOR_ASSET_UID}",
+      "asset_uid_env": "KOBO_DIRECTOR_ASSET_UID",
+      "public_form_url": "https://ee-eu.kobotoolbox.org/x/OmuWasDB",
+      "duplicate_scope": ["participant_key", "school_id"],
+      "fields": {
+        "participant_id": ["director_id", "director_id_input"],
+        "school_id": ["school_id"],
+        "school_name": ["school_name"],
+        "province": ["province"],
+        "grade": [],
+        "enumerator": ["enumerator_id"],
+        "timestamp": ["_submission_time", "end", "start"],
+        "duration_minutes": ["duration_minutes"],
+        "duration_flag_long": ["duration_flag_long"]
+      }
+    }
+  ]
+}

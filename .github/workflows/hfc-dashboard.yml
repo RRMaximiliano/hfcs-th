@@ -1,0 +1,74 @@
+name: Actualizar tablero HFC
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  actions: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v6
+
+      - name: Preparar Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Ejecutar pruebas
+        run: python -m unittest discover -s tests -v
+
+      - name: Actualizar datos
+        env:
+          KOBO_API_TOKEN: ${{ secrets.KOBO_API_TOKEN }}
+          HFC_HASH_SALT: ${{ secrets.HFC_HASH_SALT }}
+          KOBO_STUDENT_ASSET_UID: ${{ vars.KOBO_STUDENT_ASSET_UID }}
+          KOBO_TEACHER_ASSET_UID: ${{ vars.KOBO_TEACHER_ASSET_UID }}
+          KOBO_DIRECTOR_ASSET_UID: ${{ vars.KOBO_DIRECTOR_ASSET_UID }}
+        run: |
+          if [[ -n "$KOBO_API_TOKEN" && -n "$KOBO_STUDENT_ASSET_UID" && -n "$KOBO_TEACHER_ASSET_UID" && -n "$KOBO_DIRECTOR_ASSET_UID" ]]; then
+            python scripts/build_dashboard_data.py
+          else
+            echo "::warning::Faltan credenciales o UID de Kobo. Se publicarán datos de muestra."
+            python scripts/build_dashboard_data.py --sample
+          fi
+
+      - name: Preparar sitio público
+        run: |
+          mkdir _site
+          cp index.html _site/
+          cp -R assets data _site/
+          touch _site/.nojekyll
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Empaquetar sitio
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Publicar GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
