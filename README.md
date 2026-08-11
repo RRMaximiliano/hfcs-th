@@ -71,6 +71,17 @@ python3 scripts/build_dashboard_data.py \
 
 El repositorio ignora archivos `.xlsx`, `.xls`, las carpetas `raw/` y `private/`, y archivos `.env` para reducir el riesgo de publicar datos identificables.
 
+## Excel confidencial para el equipo de campo
+
+El generador local en `monitoring-excel/build_monitoring_excel.mjs` crea un libro independiente por provincia con todos los envíos recibidos, conteos por escuela y grado, carga por aplicador y una hoja editable para revisar posibles duplicados. A diferencia del tablero público, estos archivos incluyen identificadores y nombres/etiquetas para que el equipo pueda confirmar cuál envío debe conservarse.
+
+```bash
+cd Analysis/HFCs/monitoring-excel
+node build_monitoring_excel.mjs
+```
+
+Los libros actuales se guardan en `monitoring-excel/outputs/provinces/current/` y están excluidos de Git. Consulte `monitoring-excel/README.md` antes de compartirlos.
+
 ## Agregar metas por escuela
 
 Edite `config/targets.csv` sin cambiar los encabezados:
@@ -100,6 +111,13 @@ La acción corre pruebas, descarga los datos y publica una nueva versión cada 1
 - Directivos: mismo identificador final y misma escuela en más de un envío.
 
 Un caso marcado es una señal para revisión. El proceso no borra ni modifica respuestas en Kobo.
+
+## Codificación de grados
+
+- Estudiantes: `1 = 2.º`, `2 = 3.º`, `3 = 4.º`.
+- Docentes: `1 = 2.º`, `2 = 3.º`, `3 = 4.º`, `4 = Multigrado`, `5 = Otro`.
+
+La misma transformación se usa en el tablero web y en los libros provinciales.
 
 ## Privacidad
 

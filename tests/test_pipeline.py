@@ -47,9 +47,9 @@ class PipelineTests(unittest.TestCase):
             ["2.º", "3.º", "4.º", "Multigrado", "Otro"],
         )
 
-    def test_student_roster_grades_are_literal(self):
-        self.assertEqual(pipeline.split_grades("1", "students"), ["1.º (fuera de alcance)"])
-        self.assertEqual(pipeline.split_grades("2 3 4", "students"), ["2.º", "3.º", "4.º"])
+    def test_student_grade_codes(self):
+        self.assertEqual(pipeline.split_grades("1 2 3", "students"), ["2.º", "3.º", "4.º"])
+        self.assertEqual(pipeline.split_grades("2DO 3RO 4TO", "students"), ["2.º", "3.º", "4.º"])
 
     def test_province_normalization(self):
         self.assertEqual(pipeline.normalize_province("  mendoza "), "Mendoza")

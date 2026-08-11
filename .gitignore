@@ -8,3 +8,6 @@ raw/
 .env
 _site/
 data/dashboard.json
+monitoring-excel/node_modules
+monitoring-excel/outputs/
+monitoring-excel/.qa/
