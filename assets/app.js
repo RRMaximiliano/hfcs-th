@@ -242,7 +242,7 @@ function renderGrades() {
     .sort((a, b) => a.grade.localeCompare(b.grade, "es", { numeric: true }));
   state.exportName = "conteos_por_grado";
   const content = table([
-    { label: "Grado", key: "grade", render: (row) => row.grade.includes("fuera de alcance") ? statusTag(row.grade, "warning") : `<strong>${escapeHtml(row.grade)}</strong>` },
+    { label: "Grado", key: "grade", render: (row) => `<strong>${escapeHtml(row.grade)}</strong>` },
     { label: "Escuelas", key: "schoolCount", number: true },
     { label: "Estudiantes únicos", key: "students", number: true },
     { label: "Duplicados estudiantes", key: "studentDuplicates", number: true, render: (row) => row.studentDuplicates ? statusTag(int(row.studentDuplicates), "danger") : statusTag("0") },
@@ -303,7 +303,7 @@ function renderSubmissions() {
     { label: "Grado", value: (row) => (row.grades || []).join(", ") || "No aplica" },
     { label: "Aplicador", key: "enumerator_ref" },
     { label: "Minutos", key: "duration_minutes", number: true, render: (row) => decimal(row.duration_minutes) },
-    { label: "Control", value: (row) => row.missing_id ? "Sin ID" : row.grade_out_of_scope ? "Grado fuera de alcance" : row.duplicate ? "Duplicado" : row.duration_flag_long ? "Duración alta" : "Sin alertas", render: (row) => row.missing_id ? statusTag("Sin ID", "danger") : row.grade_out_of_scope ? statusTag("Grado fuera de alcance", "warning") : row.duplicate ? statusTag("Duplicado", "danger") : row.duration_flag_long ? statusTag("Duración alta", "warning") : statusTag("Sin alertas") },
+    { label: "Control", value: (row) => row.missing_id ? "Sin ID" : row.duplicate ? "Duplicado" : row.duration_flag_long ? "Duración alta" : "Sin alertas", render: (row) => row.missing_id ? statusTag("Sin ID", "danger") : row.duplicate ? statusTag("Duplicado", "danger") : row.duration_flag_long ? statusTag("Duración alta", "warning") : statusTag("Sin alertas") },
   ], rows, "No hay envíos recientes que coincidan con los filtros.");
   app.innerHTML = `<section class="view"><section class="panel">${panelHeader("Últimos 250 envíos", "Vista operativa sin DNI ni respuestas del cuestionario", true)}${content}</section></section>`;
 }
