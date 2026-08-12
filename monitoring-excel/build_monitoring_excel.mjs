@@ -156,6 +156,7 @@ function normalizeIdentifier(value) {
 function normalizeProvince(value) {
   const cleaned = scalar(value);
   if (!cleaned) return "Sin provincia";
+  const lookupKey = cleaned.replace(/[_-]+/g, " ").replace(/\s+/g, " ").toLocaleLowerCase("es");
   const aliases = new Map([
     ["buenos aires", "Buenos Aires"], ["caba", "CABA"], ["catamarca", "Catamarca"],
     ["chaco", "Chaco"], ["chubut", "Chubut"], ["cordoba", "Córdoba"], ["córdoba", "Córdoba"],
@@ -167,7 +168,15 @@ function normalizeProvince(value) {
     ["santiago del estero", "Santiago del Estero"], ["tierra del fuego", "Tierra del Fuego"],
     ["tucuman", "Tucumán"], ["tucumán", "Tucumán"],
   ]);
-  return aliases.get(cleaned.toLocaleLowerCase("es")) || cleaned;
+  return aliases.get(lookupKey) || cleaned;
+}
+
+function validateProvinceMappings() {
+  for (const value of ["la_rioja", "La Rioja", "LA-RIOJA"]) {
+    if (normalizeProvince(value) !== "La Rioja") {
+      throw new Error(`La normalización de provincia no reconoce ${value} como La Rioja.`);
+    }
+  }
 }
 
 function splitGrades(value, role) {
@@ -704,6 +713,7 @@ async function buildAndSaveWorkbook({ records, configByRole, generatedAt, provin
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   validateGradeMappings();
+  validateProvinceMappings();
   await loadDotenv(ENV_PATH);
   const config = expandEnv(JSON.parse(await fs.readFile(FORMS_PATH, "utf8")));
   const configByRole = Object.fromEntries(config.forms.map((form) => [form.key, form]));

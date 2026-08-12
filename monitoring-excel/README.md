@@ -28,9 +28,12 @@ El comando genera o reemplaza únicamente los archivos actuales en:
 
 ```text
 outputs/provinces/current/
+├── monitoreo_la-rioja.xlsx
 ├── monitoreo_mendoza.xlsx
 └── monitoreo_tucuman.xlsx
 ```
+
+La lista se amplía automáticamente cuando Kobo recibe datos de una provincia nueva. Los códigos técnicos como `la_rioja` se normalizan al nombre legible `La Rioja` dentro del tablero y de los libros.
 
 Opciones útiles:
 
