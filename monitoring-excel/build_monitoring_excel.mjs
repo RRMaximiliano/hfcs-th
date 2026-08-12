@@ -213,8 +213,19 @@ function validateGradeMappings() {
 }
 
 function parseTimestamp(value) {
-  const date = new Date(value);
+  const text = scalar(value);
+  if (!text) return null;
+  const hasExplicitTimezone = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(text);
+  const isIsoDateTime = /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}/.test(text);
+  const date = new Date(isIsoDateTime && !hasExplicitTimezone ? `${text}Z` : text);
   return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function validateTimestampParsing() {
+  const parsed = parseTimestamp("2026-08-12T14:30:00");
+  if (!parsed || parsed.toISOString() !== "2026-08-12T14:30:00.000Z") {
+    throw new Error("Las fechas de Kobo sin zona horaria deben interpretarse como UTC.");
+  }
 }
 
 function parseNumber(value) {
@@ -714,6 +725,7 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   validateGradeMappings();
   validateProvinceMappings();
+  validateTimestampParsing();
   await loadDotenv(ENV_PATH);
   const config = expandEnv(JSON.parse(await fs.readFile(FORMS_PATH, "utf8")));
   const configByRole = Object.fromEntries(config.forms.map((form) => [form.key, form]));
