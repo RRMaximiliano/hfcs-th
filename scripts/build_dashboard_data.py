@@ -246,6 +246,8 @@ def normalize_province(value: str) -> str:
     cleaned = re.sub(r"\s+", " ", value).strip()
     if not cleaned:
         return "Sin provincia"
+    lookup_key = re.sub(r"[_-]+", " ", cleaned)
+    lookup_key = re.sub(r"\s+", " ", lookup_key).casefold()
     aliases = {
         "buenos aires": "Buenos Aires",
         "caba": "CABA",
@@ -277,7 +279,7 @@ def normalize_province(value: str) -> str:
         "tucuman": "Tucumán",
         "tucumán": "Tucumán",
     }
-    return aliases.get(cleaned.casefold(), cleaned)
+    return aliases.get(lookup_key, cleaned)
 
 
 def split_grades(value: str, role: str) -> list[str]:

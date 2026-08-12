@@ -54,6 +54,8 @@ class PipelineTests(unittest.TestCase):
     def test_province_normalization(self):
         self.assertEqual(pipeline.normalize_province("  mendoza "), "Mendoza")
         self.assertEqual(pipeline.normalize_province("TUCUMAN"), "Tucumán")
+        self.assertEqual(pipeline.normalize_province("la_rioja"), "La Rioja")
+        self.assertEqual(pipeline.normalize_province("LA-RIOJA"), "La Rioja")
         self.assertEqual(pipeline.normalize_province(""), "Sin provincia")
 
     def test_minimal_xlsx_reader(self):
