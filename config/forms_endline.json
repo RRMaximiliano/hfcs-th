@@ -1,0 +1,86 @@
+{
+  "wave": "endline_post",
+  "wave_label": "Cierre 2026 (post)",
+  "api_base": "https://eu.kobotoolbox.org",
+  "fixture_dir": "endline",
+  "forms": [
+    {
+      "key": "students",
+      "label": "Estudiantes",
+      "asset_uid": "ayBm7XmUrVR4NRGaA3wsFE",
+      "public_form_url": "https://ee-eu.kobotoolbox.org/x/wvKnnBzN",
+      "duplicate_scope": ["participant_key"],
+      "grade_coding": "actual",
+      "fields": {
+        "participant_id": ["student_id"],
+        "school_id": ["school_id"],
+        "school_name": ["school_name"],
+        "province": ["province"],
+        "grade": ["grade"],
+        "enumerator": ["enumerator_id"],
+        "timestamp": ["_submission_time", "end", "start"],
+        "duration_minutes": ["duration_minutes"],
+        "duration_flag_long": []
+      },
+      "checks": {
+        "baseline_participant": "frame_baseline_participant",
+        "id_method": "student_id_method",
+        "completion": "completion_status",
+        "admin_mode": "student_admin_mode",
+        "assessor_knew_arm": "assessor_knew_arm",
+        "short_minutes": 15,
+        "very_long_minutes": 120
+      }
+    },
+    {
+      "key": "teachers",
+      "label": "Docentes",
+      "asset_uid": "arFpEQsYZrNYGymNwbpt3g",
+      "public_form_url": "https://ee-eu.kobotoolbox.org/x/u6sRg2QU",
+      "duplicate_scope": ["participant_key", "school_id"],
+      "fields": {
+        "participant_id": ["teacher_id"],
+        "school_id": ["school_id"],
+        "school_name": ["school_name"],
+        "province": ["province"],
+        "grade": ["grade_taught"],
+        "enumerator": [],
+        "timestamp": ["_submission_time", "end", "start"],
+        "duration_minutes": ["duration_minutes"],
+        "duration_flag_long": []
+      },
+      "checks": {
+        "baseline_participant": "frame_baseline_participant",
+        "id_method": "teacher_id_method",
+        "consent": "teacher_consent",
+        "short_minutes": 8,
+        "very_long_minutes": 120
+      }
+    },
+    {
+      "key": "directors",
+      "label": "Directivos",
+      "asset_uid": "a7o4N3E6JYUmBz395tiaRG",
+      "public_form_url": "https://ee-eu.kobotoolbox.org/x/95koTVJ5",
+      "duplicate_scope": ["participant_key", "school_id"],
+      "fields": {
+        "participant_id": ["director_id"],
+        "school_id": ["school_id"],
+        "school_name": ["school_name"],
+        "province": ["province"],
+        "grade": [],
+        "enumerator": [],
+        "timestamp": ["_submission_time", "end", "start"],
+        "duration_minutes": ["duration_minutes"],
+        "duration_flag_long": []
+      },
+      "checks": {
+        "baseline_participant": "frame_baseline_participant",
+        "id_method": "director_id_method",
+        "consent": "director_consent",
+        "short_minutes": 8,
+        "very_long_minutes": 120
+      }
+    }
+  ]
+}

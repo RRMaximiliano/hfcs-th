@@ -332,3 +332,7 @@ td.number, th.number { text-align: right; font-variant-numeric: tabular-nums; }
   .panel-header { align-items: flex-start; flex-direction: column; }
   .role-row { grid-template-columns: 1fr repeat(3, 58px); }
 }
+
+[hidden] {
+  display: none !important;
+}

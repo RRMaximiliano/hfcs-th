@@ -282,9 +282,24 @@ def normalize_province(value: str) -> str:
     return aliases.get(lookup_key, cleaned)
 
 
-def split_grades(value: str, role: str) -> list[str]:
+ACTUAL_GRADE_LABELS = {"2": "2.º", "3": "3.º", "4": "4.º", "5": "5.º"}
+
+
+def split_grades(value: str, role: str, coding: str = "baseline_codes") -> list[str]:
+    """Map grade values to labels.
+
+    Baseline student forms stored codes 1-3 for grades 2-4. Endline forms store the
+    actual grade (2-5), so endline configs set ``grade_coding`` to ``actual``.
+    """
     if not value:
         return []
+    if coding == "actual" and role == "students":
+        labels = []
+        for part in re.split(r"[\s,;|]+", value):
+            label = ACTUAL_GRADE_LABELS.get(part.strip(), part.strip())
+            if label and label not in labels:
+                labels.append(label)
+        return labels
     parts = re.split(r"[\s,;|]+", value)
     cleaned = []
     for part in parts:
@@ -393,7 +408,7 @@ def normalize_records(
             school_id = find_value(row, fields["school_id"])
             school_name = find_value(row, fields["school_name"])
             province = normalize_province(find_value(row, fields["province"]))
-            grades = split_grades(find_value(row, fields["grade"]), role)
+            grades = split_grades(find_value(row, fields["grade"]), role, form.get("grade_coding", "baseline_codes"))
             enumerator_raw = find_value(row, fields["enumerator"])
             timestamp_raw = find_value(row, fields["timestamp"])
             timestamp = parse_timestamp(timestamp_raw)
@@ -419,9 +434,72 @@ def normalize_records(
                     "duration_flag_long": long_duration,
                     "missing_id": not participant_key,
                     "missing_school": not school_id,
+                    **quality_flags(row, form, duration),
                 }
             )
     return normalized
+
+
+QUALITY_FLAGS = (
+    "linked_baseline",
+    "new_registration",
+    "incomplete",
+    "admin_deviation",
+    "knew_arm",
+    "no_consent",
+    "short_duration",
+    "very_long_duration",
+)
+
+QUALITY_LABELS = {
+    "linked_baseline": "Vinculados a línea de base",
+    "new_registration": "Registros nuevos",
+    "incomplete": "No completas",
+    "admin_deviation": "Aplicación no individual",
+    "knew_arm": "Aplicador conocía el grupo",
+    "no_consent": "Sin consentimiento",
+    "short_duration": "Duración muy corta",
+    "very_long_duration": "Duración muy larga",
+}
+
+
+def quality_flags(row: dict[str, Any], form: dict[str, Any], duration: float | None) -> dict[str, bool]:
+    """Endline data-quality flags driven by the form's ``checks`` block.
+
+    Every flag is a boolean about the interview process. None reveals the treatment
+    arm, outcome answers, names or DNI, so all of them can be published.
+    """
+    checks = form.get("checks")
+    if not checks:
+        return {}
+
+    def has(name: str, values: list[str]) -> bool:
+        field = checks.get(name)
+        return bool(field) and find_value(row, [field]) in values
+
+    def lacks(name: str, values: list[str]) -> bool:
+        field = checks.get(name)
+        if not field:
+            return False
+        value = find_value(row, [field])
+        return bool(value) and value not in values
+
+    short_limit = checks.get("short_minutes")
+    long_limit = checks.get("very_long_minutes")
+    return {
+        "linked_baseline": has("baseline_participant", ["1"]),
+        "new_registration": has("id_method", ["manual_new"]),
+        "incomplete": lacks("completion", ["1"]),
+        "admin_deviation": lacks("admin_mode", ["1"]),
+        "knew_arm": has("assessor_knew_arm", ["1"]),
+        "no_consent": lacks("consent", ["1"]),
+        "short_duration": duration is not None and short_limit is not None and duration < short_limit,
+        "very_long_duration": duration is not None and long_limit is not None and duration > long_limit,
+    }
+
+
+def count_flags(records: list[dict[str, Any]]) -> dict[str, int]:
+    return {flag: sum(bool(record.get(flag)) for record in records) for flag in QUALITY_FLAGS}
 
 
 def duplicate_key(record: dict[str, Any], config_by_role: dict[str, dict[str, Any]]) -> tuple[str, ...] | None:
@@ -481,6 +559,8 @@ def build_payload(
                 "deployment_active": meta.get("deployment_active"),
                 "asset_name": meta.get("asset_name") or form["label"],
                 "public_form_url": form.get("public_form_url", ""),
+                "linked_unique": len({record["participant_key"] for record in role_records if record.get("linked_baseline") and record["participant_key"]}),
+                "quality": count_flags(role_records) if form.get("checks") else None,
             }
         )
 
@@ -515,6 +595,8 @@ def build_payload(
                 "duplicate_submissions": sum(count - 1 for count in role_groups.values() if count > 1),
                 "missing_id": sum(record["missing_id"] for record in role_records),
                 "target": role_target,
+                "linked_unique": len({record["participant_key"] for record in role_records if record.get("linked_baseline") and record["participant_key"]}),
+                **({"quality": count_flags(role_records)} if config_by_role[role].get("checks") else {}),
             }
             collected_total += len(valid_ids)
             target_total += role_target
@@ -566,6 +648,12 @@ def build_payload(
                 "directors": sum(record["role"] == "directors" for record in group),
                 "duplicates": sum(record["duplicate"] for record in group),
                 "missing_id": sum(record["missing_id"] for record in group),
+                "quality": count_flags(group),
+                "median_duration_minutes": (
+                    round(statistics.median(d), 1)
+                    if (d := [record["duration_minutes"] for record in group if record["duration_minutes"] is not None])
+                    else None
+                ),
                 "schools": len({record["school_id"] for record in group if record["school_id"]}),
                 "school_ids": sorted({record["school_id"] for record in group if record["school_id"]}),
                 "provinces": sorted({record["province"] for record in group if record["province"]}),
@@ -622,6 +710,7 @@ def build_payload(
                 "duplicate",
             )
         }
+        | {flag: bool(record.get(flag)) for flag in QUALITY_FLAGS}
         for record in recent_records
     ]
 
@@ -629,9 +718,16 @@ def build_payload(
     total_submissions = len(records)
     total_duplicate_extras = sum(len(group) - 1 for group in duplicate_groups.values() if len(group) > 1)
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "generated_at": generated_at,
         "is_sample": is_sample,
+        "wave": {
+            "key": config.get("wave", "baseline"),
+            "label": config.get("wave_label", "Línea de base 2026"),
+            "has_quality_checks": any(form.get("checks") for form in config["forms"]),
+            "quality_labels": QUALITY_LABELS,
+            "thresholds": {form["key"]: {k: v for k, v in (form.get("checks") or {}).items() if k.endswith("_minutes")} for form in config["forms"]},
+        },
         "privacy": {
             "raw_identifiers_published": False,
             "case_references": "HMAC-SHA256 pseudonyms truncated to 8 hexadecimal characters",
@@ -644,6 +740,8 @@ def build_payload(
             "missing_school": sum(record["missing_school"] for record in records),
             "schools_with_data": len({record["school_id"] for record in records if record["school_id"]}),
             "schools_with_targets": len(targets),
+            "linked_unique": sum(item["linked_unique"] for item in form_summaries),
+            "quality": count_flags(records),
         },
         "forms": form_summaries,
         "schools": schools,
@@ -677,7 +775,7 @@ def main() -> int:
     metadata_by_role: dict[str, dict[str, Any]] = {}
     if args.sample:
         for role in config_by_role:
-            fixture = ROOT / "tests" / "fixtures" / f"{role}.json"
+            fixture = ROOT / "tests" / "fixtures" / config.get("fixture_dir", "") / f"{role}.json"
             raw_by_role[role] = records_from_json(fixture)
             metadata_by_role[role] = {"asset_name": f"Muestra - {config_by_role[role]['label']}"}
     elif json_paths or xlsx_paths:

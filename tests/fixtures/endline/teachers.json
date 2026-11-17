@@ -1,0 +1,33 @@
+[
+ {
+  "_id": 11,
+  "_uuid": "uuid-t-11",
+  "_submission_time": "2026-11-13T18:00:00Z",
+  "teacher_id": "TH-TCH-0001",
+  "school_id": "DEMO-001",
+  "school_name": "Escuela Demo Norte",
+  "province": "mendoza",
+  "grade_taught": "3",
+  "enumerator_id": "self_admin_web",
+  "duration_minutes": "21",
+  "frame_baseline_participant": "1",
+  "teacher_id_method": "dni_exact",
+  "teacher_consent": "1",
+  "teacher_dni_input": "20999001"
+ },
+ {
+  "_id": 12,
+  "_uuid": "uuid-t-12",
+  "_submission_time": "2026-11-13T18:30:00Z",
+  "teacher_id": "NEW-TCH-ZZ01",
+  "school_id": "DEMO-002",
+  "school_name": "Escuela Demo Sur",
+  "province": "mendoza",
+  "grade_taught": "4",
+  "enumerator_id": "self_admin_web",
+  "duration_minutes": "5",
+  "frame_baseline_participant": "0",
+  "teacher_id_method": "manual_new",
+  "teacher_consent": "2"
+ }
+]

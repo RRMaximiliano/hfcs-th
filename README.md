@@ -1,6 +1,41 @@
 # Tablero de monitoreo HFC
 
-Tablero estático para revisar la recolección de línea de base de Todos Humanos. Resume estudiantes, docentes y directivos por escuela y grado; señala posibles duplicados; muestra la carga por aplicador; compara el total descargado con el total informado por Kobo; y expone envíos recientes sin publicar DNI ni respuestas individuales.
+Tablero estático para revisar la recolección de Todos Humanos. `index.html` muestra el **cierre (post)**; `linea-de-base.html` conserva el tablero de línea de base.
+
+## Cierre (post), noviembre de 2026
+
+Dos capas, con reglas de privacidad distintas:
+
+| Capa | Qué contiene | Dónde corre | Quién lo ve |
+|---|---|---|---|
+| Tablero web (`index.html`, `data/endline.json`) | Solo agregados por escuela y aplicador seudonimizado: seguimiento de línea de base, registros nuevos, duplicados, entrevistas no completas, aplicación no individual, aplicador que conocía el grupo, duraciones fuera de rango | GitHub Actions, todos los días a las 12:00 y 20:30 (hora Argentina) | Público (GitHub Pages) |
+| Excel confidencial (`scripts/endline_field_report.py`) | Nombres, DNI e IDs: duplicados con columnas de decisión, posibles personas de línea de base registradas como nuevas, pendientes por escuela, alertas por entrevista, aplicadores | Localmente; escribe en Dropbox (`<TH_PROJECT_ROOT>/Analysis/Data/HFC/Endline/`), nunca en el repositorio | Solo el equipo autorizado |
+
+El tablero de cierre **nunca** publica el grupo de tratamiento, las respuestas del cuestionario (incluidas exposición y recuerdo de Todos Humanos), nombres ni DNI. `tests/test_pipeline.py` lo verifica.
+
+### Instalación local
+
+El repositorio vive fuera de Dropbox (`~/Developer/GitHub/hfcs-th`). Los datos confidenciales siguen en Dropbox: en `.env` (no se sube a Git) defina `TH_PROJECT_ROOT` con la carpeta del proyecto, además de `KOBO_API_TOKEN` (ver `.env.example`).
+
+### Rutina diaria
+
+```bash
+cd hfcs-th
+# Excel confidencial + resumen agregado en Markdown para el reporte diario
+python3 scripts/endline_field_report.py
+```
+
+El mismo comando escribe `decisiones_cierre.csv`, que lee la limpieza de Stata (`Analysis/Code/Endline/` en Dropbox). Las decisiones escritas en las columnas amarillas de `Duplicados` y `Posibles_no_vinculados` se conservan al regenerar (se cruzan por UUID del envío, como `ieduplicates`). Cada versión anterior queda en `archivo/`. El proceso no modifica ni borra nada en Kobo.
+
+### Configuración
+
+- `config/forms_endline.json`: proyectos de Kobo del cierre (los UID no son secretos; el token sí), campos y umbrales de duración (estudiantes: menos de 15 o más de 120 minutos; adultos: menos de 8).
+- `config/targets_endline.csv`: participantes de línea de base por escuela, el denominador del seguimiento. Se genera localmente desde el marco confidencial con `python3 scripts/build_endline_targets.py`; vuelva a generarlo si cambia la versión del marco.
+- Seguimiento = personas de línea de base encontradas en el cierre con el mismo ID (`frame_baseline_participant = 1`) sobre participantes de línea de base de la escuela.
+
+## Línea de base (agosto de 2026)
+
+Las secciones siguientes describen el tablero de línea de base. Resume estudiantes, docentes y directivos por escuela y grado; señala posibles duplicados; muestra la carga por aplicador; compara el total descargado con el total informado por Kobo; y expone envíos recientes sin publicar DNI ni respuestas individuales.
 
 ## Qué se necesita de Kobo
 
@@ -37,7 +72,7 @@ El tablero usa `https://eu.kobotoolbox.org/api/v2/assets/{uid}/data/`, sigue tod
 La versión incluida se abre con datos de muestra:
 
 ```bash
-cd Analysis/HFCs
+cd hfcs-th
 python3 scripts/build_dashboard_data.py --sample
 python3 -m http.server 8000
 ```
@@ -47,7 +82,7 @@ Abra `http://localhost:8000`. No abra `index.html` directamente con `file://`, p
 Para actualizar desde Kobo en una terminal:
 
 ```bash
-cd Analysis/HFCs
+cd hfcs-th
 export KOBO_API_TOKEN="..."
 export HFC_HASH_SALT="..."
 export KOBO_STUDENT_ASSET_UID="..."
@@ -61,7 +96,7 @@ python3 scripts/build_dashboard_data.py
 También se puede construir el tablero desde los archivos XLSX descargados manualmente. La configuración recomendada en Kobo es **valores XML y encabezados XML**, porque coincide con los nombres estables del XLSForm (`student_id`, `school_id`, `grade`, etc.). El lector usa la primera hoja, que en una exportación estándar contiene los registros principales.
 
 ```bash
-cd Analysis/HFCs
+cd hfcs-th
 export HFC_HASH_SALT="una-cadena-secreta-larga-y-estable"
 python3 scripts/build_dashboard_data.py \
   --xlsx students=/ruta/estudiantes.xlsx \
@@ -76,7 +111,7 @@ El repositorio ignora archivos `.xlsx`, `.xls`, las carpetas `raw/` y `private/`
 El generador local en `monitoring-excel/build_monitoring_excel.mjs` crea un libro independiente por provincia con todos los envíos recibidos, conteos por escuela y grado, carga por aplicador y una hoja editable para revisar posibles duplicados. A diferencia del tablero público, estos archivos incluyen identificadores y nombres/etiquetas para que el equipo pueda confirmar cuál envío debe conservarse.
 
 ```bash
-cd Analysis/HFCs/monitoring-excel
+cd monitoring-excel
 node build_monitoring_excel.mjs
 ```
 
@@ -126,7 +161,7 @@ El trabajo de GitHub Actions recibe el token como secreto y lo usa únicamente p
 ## Pruebas
 
 ```bash
-cd Analysis/HFCs
+cd hfcs-th
 python3 -m unittest discover -s tests -v
 ```
 
