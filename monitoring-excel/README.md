@@ -20,7 +20,7 @@ La detección marca casos para revisión; no modifica ni elimina respuestas en K
 El script lee el token y los UIDs desde `../.env`, igual que el tablero.
 
 ```bash
-cd Analysis/HFCs/monitoring-excel
+cd monitoring-excel
 node build_monitoring_excel.mjs
 ```
 

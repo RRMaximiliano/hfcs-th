@@ -11,3 +11,4 @@ data/dashboard.json
 monitoring-excel/node_modules
 monitoring-excel/outputs/
 monitoring-excel/.qa/
+data/endline.json

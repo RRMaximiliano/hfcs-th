@@ -1,0 +1,141 @@
+school_id,school_name,province,target_students,target_teachers,target_directors
+CBA-EE0410106,ANTONIO DEL VISO,Córdoba,50,3,1
+CBA-EE0550783,Bernardino Rivadavia,Córdoba,41,3,1
+CBA-EE0550931,COMANDANTE ESPORA,Córdoba,52,3,1
+CBA-EE0411096,CURACA LINO ACEVEDO,Córdoba,47,3,1
+CBA-EE0550681,DOCTOR PABLO RUEDA,Córdoba,65,3,2
+CBA-EE0410434,Dr. Miguel Angel Zavala Ortiz,Córdoba,43,3,1
+CBA-EE0410515,Ejército Argentino,Córdoba,43,3,1
+CBA-EE0551754,Eva Duarte,Córdoba,51,3,1
+CBA-EE0550637,GENDARMERÍA NACIONAL,Córdoba,34,3,1
+CBA-EE0550787,Intendente Grimberg,Córdoba,32,3,1
+CBA-EE0550667,JUAN MINETTI,Córdoba,62,3,1
+CBA-EE0410110,MAESTROS PUNTANOS,Córdoba,43,3,1
+CBA-EE0410605,Mariano Fragueiro,Córdoba,44,3,1
+CBA-EE0550773,Nicolás Avellaneda,Córdoba,34,3,1
+CBA-EE0410103,PROVINCIA DE MISIONES,Córdoba,30,3,1
+CBA-EE0410534,PTE. DR. ARTURO UMBERTO ILLIA,Córdoba,57,3,1
+CBA-EE0410101,Presidente Sarmiento,Córdoba,44,3,1
+CBA-EE0550893,RICARDO GUTIÉRREZ,Córdoba,5,1,0
+CBA-EE0410212,Santiago Derqui,Córdoba,27,3,1
+CBA-EE0410055,Vicente Fidel López,Córdoba,50,3,1
+LRJ-GC,Escuela Gestión Comunitaria,La Rioja,0,4,1
+LRJ-001,Escuela N° 1 Pablo Pizzurno,La Rioja,0,3,2
+LRJ-136,Escuela N° 136 Nicolasa Vera Luna de Vera,La Rioja,0,3,1
+LRJ-169,Escuela N° 169 Universidad Nacional de La Plata,La Rioja,0,3,1
+LRJ-017,Escuela N° 17 La Rioja Española,La Rioja,0,3,1
+LRJ-177,Escuela N° 177 Dr. Mariano Moreno,La Rioja,0,3,1
+LRJ-189,Escuela N° 189 Emilio Alfredo Hunicken,La Rioja,0,3,1
+LRJ-249,Escuela N° 249 Gral. Manuel Belgrano,La Rioja,0,3,1
+LRJ-251,Escuela N° 251 Ceferino Namuncurá,La Rioja,0,3,1
+LRJ-259,Escuela N° 259 Nicolás Dávila,La Rioja,0,3,0
+LRJ-260,Escuela N° 260 Juan Ramírez de Velasco,La Rioja,0,3,1
+LRJ-264,Escuela N° 264 Prof. Luis Torres Molina,La Rioja,0,3,1
+LRJ-287,Escuela N° 287 Maestro Armando Herrera Robledo,La Rioja,0,3,1
+LRJ-396,Escuela N° 396 Caudillos Riojanos,La Rioja,0,3,1
+LRJ-409,Escuela N° 409 Ciudad de los Azares,La Rioja,0,2,1
+LRJ-PIOXII,Escuela Parroquial Pío XII,La Rioja,0,2,1
+LRJ-DA,Escuela Privada Bilingüe Dante Alighieri,La Rioja,0,3,1
+LRJ-GM,Escuela Privada Gabriela Mistral,La Rioja,0,4,0
+LRJ-JP,Escuela Privada Jean Piaget,La Rioja,0,3,2
+LRJ-SM,Escuela San Martín,La Rioja,0,1,1
+1-585,1° de Febrero,Mendoza,47,3,1
+1-131,Antonio Epifanio Díaz,Mendoza,49,2,1
+1-047,Bartolmé Mitre,Mendoza,41,3,1
+1-055,Corrientes,Mendoza,45,2,1
+1-635,Dr. Rodolfo Corominas Segura,Mendoza,35,3,1
+1-550,Fragata Sarmiento,Mendoza,50,3,1
+1-034,Gral. Manuel Belgrano,Mendoza,45,1,1
+1-028,José Federico Moreno,Mendoza,46,3,1
+1-614,Juan Giol,Mendoza,67,3,1
+1-006,Juan José Paso,Mendoza,49,2,1
+1-575,Justo S. López de Gomara,Mendoza,20,3,1
+1-005,Leandro N. Alem,Mendoza,35,3,1
+1-619,Lib. Gral. José de San Martín,Mendoza,31,3,1
+1-747,Maestro Oscar Raúl Cattaneo,Mendoza,54,3,1
+1-623,Manuel Pacífico Antequeda,Mendoza,46,3,1
+1-684,Mtro. Saturnino Sosa,Mendoza,49,3,1
+1-143,Pedro Pascual Segura,Mendoza,52,3,1
+1-118,Primera Junta,Mendoza,52,2,1
+1-615,Provincias de Cuyo,Mendoza,30,3,1
+1-640,Reyes Católicos,Mendoza,39,3,1
+MIS-106,Escuela N° 106,Misiones,30,0,0
+MIS-107,Escuela N° 107,Misiones,17,0,0
+MIS-113,Escuela N° 113 Maximino Ibarrola,Misiones,37,0,0
+MIS-125,Escuela N° 125 Martín Miguel de Güemes,Misiones,33,3,1
+MIS-167,Escuela N° 167 Misión Cooperativa,Misiones,39,3,1
+MIS-298,Escuela N° 298 Salvador Simsolo,Misiones,34,0,0
+MIS-045,Escuela N° 45,Misiones,47,0,0
+MIS-005,Escuela N° 5 Gral. Don José de San Martín,Misiones,52,0,0
+MIS-054,Escuela N° 54,Misiones,1,0,0
+MIS-059,Escuela N° 59 Juana Azurduy,Misiones,34,0,0
+MIS-621,Escuela N° 621,Misiones,16,0,0
+MIS-663,Escuela N° 663,Misiones,34,2,1
+MIS-665,Escuela N° 665,Misiones,27,1,0
+MIS-729,Escuela N° 729,Misiones,23,0,0
+MIS-815,Escuela N° 815 Altos de González,Misiones,37,3,1
+MIS-820,Escuela N° 820,Misiones,6,1,1
+MIS-826,Escuela N° 826 Gendarme Argentino,Misiones,18,0,0
+MIS-828,Escuela N° 828,Misiones,42,4,0
+MIS-842,Escuela N° 842,Misiones,23,0,1
+MIS-893,Escuela N° 893 Madre Teresa de Calcuta,Misiones,18,3,1
+SAL-4044,N° 4044 FRAY HONORATO PISTOIA,Salta,2,8,2
+SAL-4074,N° 4074 BERNARDO FRIAS,Salta,83,4,1
+SAL-4075,N° 4075 DR FRANCISCO ORTIZ,Salta,2,1,1
+SAL-4099,N° 4099 DR. FRANCISCO GURUCHAGA,Salta,281,9,3
+SAL-4217,N° 4217 LUIS GORJON ALVAREZ,Salta,31,2,1
+SAL-4221,N° 4221 FRAGATA LIBERTAD,Salta,82,5,1
+SAL-4330,N° 4330 JOSE EUSTAQUIO ALDERETE,Salta,2,3,1
+SAL-4331,N° 4331 EL TIMBO,Salta,0,0,1
+SAL-4352,N° 4352 PONTIFICE JUAN PABLO II,Salta,8,1,1
+SAL-4377,N° 4377 EMBLEMA NACIONAL,Salta,1,1,1
+SAL-4378,N° 4378 SIN NOMBRE,Salta,1,0,1
+SAL-4394,N° 4394 CORONEL VICENTE TORINO,Salta,98,7,2
+SAL-4405,N° 4405 COMBATIENTES DE MALVINA,Salta,2,1,1
+SAL-4539,N° 4539 CANDELARIO NUÑEZ BUSTAMANTE,Salta,1,1,1
+SAL-4546,N° 4546 DR CARLOS INDALECIO GOMEZ,Salta,3,1,1
+SAL-4632,N° 4632 DR. JOAQUIN GUASH,Salta,26,10,1
+SAL-4642,N° 4642 CAMPAÑA DEL DESIERTO,Salta,58,3,3
+SAL-4653,N° 4653 TRISTAN ALVAREZ,Salta,6,1,1
+SAL-4784,N° 4784 DOLORES CAMPION,Salta,50,2,1
+SAL-4808,N° 4808 GESTA SANMARTINIANA,Salta,74,28,3
+SJ-009,12 de Agosto,San Juan,55,3,1
+SJ-007,Antonino Aberastain,San Juan,72,3,1
+SJ-012,Benita Dávila de los Ríos,San Juan,50,3,1
+SJ-011,Dr. Carlos Saavedra Lamas,San Juan,42,3,1
+SJ-001,Dr. Isidro Mariano de Zavalla,San Juan,55,3,0
+SJ-005,Dr. Luis Agote,San Juan,67,2,1
+SJ-014,Escuela de Educación Primaria Los Manantiales,San Juan,67,3,1
+SJ-018,Estanislao del Campo,San Juan,36,3,1
+SJ-004,Granaderos de San Martín,San Juan,55,3,1
+SJ-008,Ingeniero Marcos Zalazar,San Juan,70,2,1
+SJ-013,Juan de Dios Flores,San Juan,42,2,1
+SJ-002,Leonor Sánchez de Arancibia,San Juan,58,3,1
+SJ-020,Normal Superior General Manuel Belgrano,San Juan,79,2,1
+SJ-015,Ovispo Zapata,San Juan,51,3,0
+SJ-017,Pedro Echagüe,San Juan,34,3,1
+SJ-006,Pedro Álvarez,San Juan,48,2,1
+SJ-003,Procesa Sarmiento de Lenoir,San Juan,58,2,2
+SJ-016,República de Bolivia,San Juan,15,2,1
+SJ-019,República del Paraguay,San Juan,20,2,0
+SJ-010,Tierra del Fuego,San Juan,61,3,1
+TUC-015,Escuela Alfredo Cosson,Tucumán,31,2,1
+TUC-007,Escuela Bernabé Aráoz,Tucumán,36,3,1
+TUC-002,Escuela Congreso de Tucumán,Tucumán,39,3,1
+TUC-017,Escuela Dr. Agustín Justo de la Vega,Tucumán,40,3,1
+TUC-011,Escuela Dr. Miguel Lillo,Tucumán,33,3,1
+TUC-010,Escuela Federalismo Argentino,Tucumán,54,3,1
+TUC-013,Escuela Gdor. Anselmo Rojo,Tucumán,34,1,1
+TUC-018,Escuela Gdor. Miguel Critto,Tucumán,37,3,1
+TUC-003,Escuela Guillermo Griet,Tucumán,34,2,1
+TUC-012,Escuela Isabel La Católica,Tucumán,41,3,1
+TUC-019,Escuela Justiniano Frías,Tucumán,30,2,1
+TUC-016,Escuela Lizondo Borda,Tucumán,39,3,1
+TUC-004,Escuela Martín Miguel de Güemes,Tucumán,40,3,1
+TUC-009,Escuela N° 110 Gob. Celedonio Gutiérrez,Tucumán,51,3,1
+TUC-020,Escuela N° 240 Manuel Laínez,Tucumán,43,2,1
+TUC-006,Escuela N° 259 Belgrano,Tucumán,27,3,1
+TUC-001,Escuela Próspero Mena,Tucumán,44,3,1
+TUC-005,Escuela Pte. Nicolás Avellaneda,Tucumán,23,2,1
+TUC-014,Escuela Rector Villafañe,Tucumán,48,3,1
+TUC-008,Escuela Tte. Benjamín Matienzo,Tucumán,35,3,1

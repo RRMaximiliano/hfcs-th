@@ -1,0 +1,16 @@
+[
+ {
+  "_id": 21,
+  "_uuid": "uuid-d-21",
+  "_submission_time": "2026-11-13T19:00:00Z",
+  "director_id": "TH-DIR-0001",
+  "school_id": "DEMO-001",
+  "school_name": "Escuela Demo Norte",
+  "province": "mendoza",
+  "enumerator_id": "self_admin_web",
+  "duration_minutes": "30",
+  "frame_baseline_participant": "1",
+  "director_id_method": "dni_exact",
+  "director_consent": "1"
+ }
+]

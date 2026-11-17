@@ -4,7 +4,9 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: "0 0 * * *"
+    # 12:00 and 20:30 in Argentina (UTC-3), during endline fieldwork.
+    - cron: "0 15 * * *"
+    - cron: "30 23 * * *"
   workflow_dispatch:
 
 permissions:
@@ -47,10 +49,23 @@ jobs:
             python scripts/build_dashboard_data.py --sample
           fi
 
+      - name: Actualizar datos de cierre
+        env:
+          KOBO_API_TOKEN: ${{ secrets.KOBO_API_TOKEN }}
+          HFC_HASH_SALT: ${{ secrets.HFC_HASH_SALT }}
+        run: |
+          ENDLINE_ARGS="--config config/forms_endline.json --targets config/targets_endline.csv --output data/endline.json"
+          if [[ -n "$KOBO_API_TOKEN" ]]; then
+            python scripts/build_dashboard_data.py $ENDLINE_ARGS
+          else
+            echo "::warning::Falta KOBO_API_TOKEN. Se publicarán datos de muestra del cierre."
+            python scripts/build_dashboard_data.py $ENDLINE_ARGS --sample
+          fi
+
       - name: Preparar sitio público
         run: |
           mkdir _site
-          cp index.html _site/
+          cp index.html linea-de-base.html _site/
           cp -R assets data _site/
           touch _site/.nojekyll
 

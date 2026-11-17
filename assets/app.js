@@ -8,6 +8,7 @@ const VIEW_TITLES = {
   overview: "Resumen operativo",
   schools: "Estado por escuela",
   grades: "Estudiantes y docentes por grado",
+  quality: "Calidad de datos",
   duplicates: "Posibles duplicados",
   enumerators: "Carga por aplicador",
   submissions: "Envíos recientes",
@@ -89,8 +90,12 @@ function recordMatches(row) {
     && (!query || matches(`${row.school_name} ${row.school_id} ${row.case_ref} ${row.enumerator_ref} ${(row.grades || []).join(" ")}`, query));
 }
 
+function hasQuality() {
+  return Boolean(state.data?.wave?.has_quality_checks);
+}
+
 function aggregateMetrics(schools, roles = selectedRoles()) {
-  const result = { submissions: 0, unique: 0, duplicates: 0, missingId: 0, target: 0, schools: 0 };
+  const result = { submissions: 0, unique: 0, linked: 0, duplicates: 0, missingId: 0, target: 0, schools: 0, quality: {} };
   for (const school of schools) {
     let hasData = false;
     for (const role of roles) {
@@ -100,6 +105,8 @@ function aggregateMetrics(schools, roles = selectedRoles()) {
       result.duplicates += metrics.duplicate_submissions || 0;
       result.missingId += metrics.missing_id || 0;
       result.target += metrics.target || 0;
+      result.linked += metrics.linked_unique || 0;
+      for (const [flag, count] of Object.entries(metrics.quality || {})) result.quality[flag] = (result.quality[flag] || 0) + count;
       hasData ||= (metrics.submissions || 0) > 0;
     }
     if (hasData) result.schools += 1;
@@ -173,7 +180,9 @@ function renderOverview() {
       ${metricCard("Envíos", int(metrics.submissions), `${int(metrics.schools)} escuelas con datos`, true)}
       ${metricCard("Personas únicas", int(metrics.unique), `${int(metrics.missingId)} sin ID`)}
       ${metricCard("Envíos duplicados", int(metrics.duplicates), "Registros adicionales sobre un mismo caso")}
-      ${metrics.target ? metricCard("Avance", `${int((metrics.unique / metrics.target) * 100)}%`, `${int(metrics.unique)} de ${int(metrics.target)}`) : ""}
+      ${metrics.target ? (hasQuality()
+        ? followUpCard(schools)
+        : metricCard("Avance", `${int((metrics.unique / metrics.target) * 100)}%`, `${int(metrics.unique)} de ${int(metrics.target)}`)) : ""}
     </div>
     <div class="split-grid">
       <section class="panel">${panelHeader("Estado por población", "Envíos descargados, personas únicas y posibles duplicados")}
@@ -193,7 +202,8 @@ function renderSchools() {
   const roles = selectedRoles();
   const prepared = rows.map((row) => {
     const metrics = aggregateMetrics([row], roles);
-    return { ...row, ...metrics, completion: metrics.target ? metrics.unique / metrics.target : null };
+    const reached = hasQuality() ? metrics.linked : metrics.unique;
+    return { ...row, ...metrics, completion: metrics.target ? reached / metrics.target : null };
   });
   const hasTargets = prepared.some((row) => row.target > 0);
   state.exportName = "estado_por_escuela";
@@ -208,7 +218,8 @@ function renderSchools() {
   ];
   if (hasTargets) {
     columns.splice(-1, 0,
-      { label: "Meta", key: "target", number: true, render: (row) => row.target ? int(row.target) : '<span class="muted">Sin meta</span>' },
+      { label: hasQuality() ? "En línea de base" : "Meta", key: "target", number: true, render: (row) => row.target ? int(row.target) : '<span class="muted">Sin meta</span>' },
+      ...(hasQuality() ? [{ label: "Vinculados", key: "linked", number: true }] : []),
       { label: "Avance", value: (row) => row.completion === null ? "" : row.completion, number: true, render: (row) => row.completion === null ? '<span class="muted">No aplica</span>' : statusTag(`${int(row.completion * 100)}%`) },
     );
   }
@@ -252,6 +263,91 @@ function renderGrades() {
   app.innerHTML = `<section class="view"><section class="panel">${panelHeader("Cobertura por grado", "Docentes con más de un grado aparecen una vez en cada grado declarado", true)}${content}</section></section>`;
 }
 
+function followUpCard(schoolRows) {
+  const visited = schoolRows.filter((row) => aggregateMetrics([row]).submissions > 0);
+  const inVisited = aggregateMetrics(visited);
+  const overall = aggregateMetrics(schoolRows);
+  if (!inVisited.target) return metricCard("Seguimiento de línea de base", "Sin dato", "Todavía no hay escuelas visitadas con participantes de línea de base", true);
+  return metricCard(
+    "Seguimiento en escuelas visitadas",
+    `${int((inVisited.linked / inVisited.target) * 100)}%`,
+    `${int(inVisited.linked)} de ${int(inVisited.target)} en ${int(visited.length)} escuelas. Operativo completo: ${int(overall.target ? (overall.linked / overall.target) * 100 : 0)}% de ${int(overall.target)}`,
+    true,
+  );
+}
+
+function qualityTag(count, tone = "warning") {
+  return count ? statusTag(int(count), tone) : statusTag("0");
+}
+
+function renderQuality() {
+  if (!hasQuality()) {
+    app.innerHTML = emptyState("Sin controles de calidad", "Esta ronda no tiene controles de calidad configurados.");
+    return;
+  }
+  const labels = state.data.wave.quality_labels;
+  const thresholds = state.data.wave.thresholds || {};
+  const schools = filteredSchools().map((row) => ({ ...row, ...aggregateMetrics([row]) })).filter((row) => row.submissions > 0);
+  const total = aggregateMetrics(filteredSchools());
+  const q = total.quality;
+  const pct = (count) => (total.submissions ? `${int((count / total.submissions) * 100)}% de los envíos` : "Sin envíos");
+  const studentLimits = thresholds.students || {};
+  const qualityColumns = [
+    { label: "Registros nuevos", value: (row) => row.quality.new_registration || 0, number: true, render: (row) => qualityTag(row.quality.new_registration) },
+    { label: "Duplicados", key: "duplicates", number: true, render: (row) => qualityTag(row.duplicates, "danger") },
+    { label: "No completas", value: (row) => row.quality.incomplete || 0, number: true, render: (row) => qualityTag(row.quality.incomplete) },
+    { label: "No individual", value: (row) => row.quality.admin_deviation || 0, number: true, render: (row) => qualityTag(row.quality.admin_deviation) },
+    { label: "Conocía grupo", value: (row) => row.quality.knew_arm || 0, number: true, render: (row) => qualityTag(row.quality.knew_arm) },
+    { label: "Muy corta", value: (row) => row.quality.short_duration || 0, number: true, render: (row) => qualityTag(row.quality.short_duration, "danger") },
+    { label: "Muy larga", value: (row) => row.quality.very_long_duration || 0, number: true, render: (row) => qualityTag(row.quality.very_long_duration) },
+  ];
+  const schoolTable = table([
+    { label: "Provincia", key: "province" },
+    { label: "Escuela", value: (row) => `${row.school_name} (${row.school_id || "sin código"})`, render: (row) => `<span class="cell-title">${escapeHtml(row.school_name)}</span><span class="cell-subtitle">${escapeHtml(row.school_id || "Sin código")}</span>` },
+    { label: "Envíos", key: "submissions", number: true },
+    { label: "En línea de base", key: "target", number: true },
+    { label: "Vinculados", key: "linked", number: true },
+    { label: "Seguimiento", value: (row) => (row.target ? row.linked / row.target : ""), number: true, render: (row) => row.target ? statusTag(`${int((row.linked / row.target) * 100)}%`, row.linked / row.target < 0.8 ? "warning" : "") : '<span class="muted">No aplica</span>' },
+    ...qualityColumns,
+  ], schools, "No hay escuelas con envíos para los filtros actuales.");
+  const schoolExport = state.exportRows;
+
+  const query = state.filters.search.toLocaleLowerCase("es");
+  const enumerators = state.data.enumerators.filter((row) => {
+    const roleMatch = !state.filters.role || (row[state.filters.role] || 0) > 0;
+    const provinceMatch = !state.filters.province || (row.provinces || []).includes(state.filters.province);
+    const schoolMatch = !state.filters.school || (row.school_ids || []).includes(state.filters.school);
+    return roleMatch && provinceMatch && schoolMatch && row.students > 0 && (!query || matches(row.enumerator_ref, query));
+  });
+  const enumeratorTable = table([
+    { label: "Aplicador", key: "enumerator_ref", render: (row) => `<strong>${escapeHtml(row.enumerator_ref)}</strong>` },
+    { label: "Estudiantes", key: "students", number: true },
+    { label: "Escuelas", key: "schools", number: true },
+    { label: "Mediana min.", key: "median_duration_minutes", number: true, render: (row) => decimal(row.median_duration_minutes) },
+    { label: "Registros nuevos", value: (row) => row.quality.new_registration || 0, number: true, render: (row) => qualityTag(row.quality.new_registration) },
+    { label: "Duplicados", key: "duplicates", number: true, render: (row) => qualityTag(row.duplicates, "danger") },
+    { label: "No completas", value: (row) => row.quality.incomplete || 0, number: true, render: (row) => qualityTag(row.quality.incomplete) },
+    { label: "No individual", value: (row) => row.quality.admin_deviation || 0, number: true, render: (row) => qualityTag(row.quality.admin_deviation) },
+    { label: "Conocía grupo", value: (row) => row.quality.knew_arm || 0, number: true, render: (row) => qualityTag(row.quality.knew_arm) },
+    { label: "Muy corta", value: (row) => row.quality.short_duration || 0, number: true, render: (row) => qualityTag(row.quality.short_duration, "danger") },
+  ], enumerators, "No hay aplicadores de estudiantes para los filtros actuales.");
+  state.exportRows = schoolExport;
+  state.exportName = "calidad_por_escuela";
+
+  app.innerHTML = `<section class="view">
+    <div class="metric-grid">
+      ${followUpCard(filteredSchools())}
+      ${metricCard(labels.new_registration, int(q.new_registration || 0), `${pct(q.new_registration || 0)}. Revisar si son personas de línea de base no encontradas`)}
+      ${metricCard(labels.knew_arm, int(q.knew_arm || 0), `${pct(q.knew_arm || 0)}. La aplicación debe ser ciega al grupo`)}
+      ${metricCard(labels.short_duration, int(q.short_duration || 0), `Estudiantes con menos de ${int(studentLimits.short_minutes || 0)} minutos; adultos con menos de ${int((thresholds.teachers || {}).short_minutes || 0)}`)}
+    </div>
+    <section class="panel">${panelHeader("Seguimiento y alertas por escuela", "Vinculados = personas encuestadas en línea de base y encontradas en el cierre con el mismo ID", true)}${schoolTable}
+      <p class="data-note">Alertas: registros nuevos (no encontrados en el marco), envíos duplicados del mismo ID, entrevistas no completas, aplicación grupal o en aula, aplicador que sabía si la escuela participa, y duraciones fuera de rango (más de ${int(studentLimits.very_long_minutes || 0)} minutos suele indicar un formulario abierto sin terminar).</p>
+    </section>
+    <section class="panel">${panelHeader("Alertas por aplicador (estudiantes)", "Docentes y directivos responden en forma autoadministrada")}${enumeratorTable}</section>
+  </section>`;
+}
+
 function renderDuplicates() {
   const rows = state.data.duplicates.filter(recordMatches);
   state.exportName = "posibles_duplicados";
@@ -292,6 +388,19 @@ function renderEnumerators() {
   app.innerHTML = `<section class="view"><section class="panel">${panelHeader("Carga y alertas por aplicador", "Los códigos están seudonimizados para la publicación web", true)}${content}</section></section>`;
 }
 
+function recordAlerts(row) {
+  const alerts = [];
+  if (row.missing_id) alerts.push(["Sin ID", "danger"]);
+  if (row.duplicate) alerts.push(["Duplicado", "danger"]);
+  if (row.short_duration) alerts.push(["Muy corta", "danger"]);
+  if (row.new_registration) alerts.push(["Registro nuevo", "warning"]);
+  if (row.incomplete) alerts.push(["No completa", "warning"]);
+  if (row.admin_deviation) alerts.push(["No individual", "warning"]);
+  if (row.knew_arm) alerts.push(["Conocía grupo", "warning"]);
+  if (row.very_long_duration || row.duration_flag_long) alerts.push(["Duración alta", "warning"]);
+  return alerts;
+}
+
 function renderSubmissions() {
   const rows = state.data.recent_records.filter(recordMatches);
   state.exportName = "envios_recientes";
@@ -303,7 +412,10 @@ function renderSubmissions() {
     { label: "Grado", value: (row) => (row.grades || []).join(", ") || "No aplica" },
     { label: "Aplicador", key: "enumerator_ref" },
     { label: "Minutos", key: "duration_minutes", number: true, render: (row) => decimal(row.duration_minutes) },
-    { label: "Control", value: (row) => row.missing_id ? "Sin ID" : row.duplicate ? "Duplicado" : row.duration_flag_long ? "Duración alta" : "Sin alertas", render: (row) => row.missing_id ? statusTag("Sin ID", "danger") : row.duplicate ? statusTag("Duplicado", "danger") : row.duration_flag_long ? statusTag("Duración alta", "warning") : statusTag("Sin alertas") },
+    { label: "Control", value: (row) => recordAlerts(row).map((item) => item[0]).join(" | ") || "Sin alertas", render: (row) => {
+      const alerts = recordAlerts(row);
+      return alerts.length ? alerts.map(([label, tone]) => statusTag(label, tone)).join(" ") : statusTag("Sin alertas");
+    } },
   ], rows, "No hay envíos recientes que coincidan con los filtros.");
   app.innerHTML = `<section class="view"><section class="panel">${panelHeader("Últimos 250 envíos", "Vista operativa sin DNI ni respuestas del cuestionario", true)}${content}</section></section>`;
 }
@@ -324,6 +436,7 @@ function render() {
     grades: renderGrades,
     duplicates: renderDuplicates,
     enumerators: renderEnumerators,
+    quality: renderQuality,
     submissions: renderSubmissions,
   })[state.view]();
   app.setAttribute("aria-busy", "false");
@@ -400,9 +513,12 @@ function installTheme() {
 
 async function loadDashboard() {
   try {
-    const response = await fetch("data/dashboard.json", { cache: "no-store" });
-    if (!response.ok) throw new Error(`No se pudo leer data/dashboard.json (HTTP ${response.status}).`);
+    const source = document.body.dataset.source || "data/dashboard.json";
+    const response = await fetch(source, { cache: "no-store" });
+    if (!response.ok) throw new Error(`No se pudo leer ${source} (HTTP ${response.status}).`);
     state.data = await response.json();
+    if (state.data.wave?.label) document.querySelector(".context-label").textContent = state.data.wave.label;
+    document.querySelectorAll("[data-requires-quality]").forEach((element) => { element.hidden = !hasQuality(); });
     state.view = VIEW_TITLES[location.hash.slice(1)] ? location.hash.slice(1) : "overview";
     document.querySelector("#nav-total").textContent = int(state.data.summary.submissions);
     document.querySelector("#sync-status").textContent = state.data.is_sample ? "Datos de muestra" : "Datos actualizados";

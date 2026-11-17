@@ -36,6 +36,67 @@ class PipelineTests(unittest.TestCase):
         self.assertNotIn("20101001", public_json)
         self.assertIn("EST-", public_json)
 
+    def test_endline_quality_flags_and_coverage(self):
+        config = pipeline.expand_env(pipeline.load_json(ROOT / "config" / "forms_endline.json"))
+        raw = {
+            role: pipeline.records_from_json(ROOT / "tests" / "fixtures" / "endline" / f"{role}.json")
+            for role in ("students", "teachers", "directors")
+        }
+        targets = {
+            "DEMO-001": {"school_id": "DEMO-001", "school_name": "Escuela Demo Norte", "province": "Mendoza", "students": 4, "teachers": 1, "directors": 1},
+        }
+        payload = pipeline.build_payload(raw, {}, config, targets, "unit-test-salt", True)
+        students = {item["key"]: item for item in payload["forms"]}["students"]
+        self.assertEqual(students["submissions"], 5)
+        self.assertEqual(students["duplicate_submissions"], 1)
+        self.assertEqual(students["linked_unique"], 3)
+        self.assertEqual(
+            students["quality"],
+            {
+                "linked_baseline": 4,
+                "new_registration": 1,
+                "incomplete": 1,
+                "admin_deviation": 1,
+                "knew_arm": 2,
+                "no_consent": 0,
+                "short_duration": 1,
+                "very_long_duration": 1,
+            },
+        )
+        teachers = {item["key"]: item for item in payload["forms"]}["teachers"]
+        self.assertEqual(teachers["quality"]["no_consent"], 1)
+        self.assertEqual(teachers["quality"]["short_duration"], 1)
+        school = {row["school_id"]: row for row in payload["schools"]}["DEMO-001"]
+        self.assertEqual(school["roles"]["students"]["target"], 4)
+        self.assertEqual(school["roles"]["students"]["linked_unique"], 2)
+        self.assertEqual(payload["grades"][0]["grade"], "3.º")
+        self.assertTrue(payload["wave"]["has_quality_checks"])
+
+    def test_endline_payload_publishes_no_identifiers_answers_or_arm(self):
+        config = pipeline.expand_env(pipeline.load_json(ROOT / "config" / "forms_endline.json"))
+        raw = {
+            role: pipeline.records_from_json(ROOT / "tests" / "fixtures" / "endline" / f"{role}.json")
+            for role in ("students", "teachers", "directors")
+        }
+        public_json = json.dumps(pipeline.build_payload(raw, {}, config, {}, "unit-test-salt", True), ensure_ascii=False)
+        for forbidden in ("45999001", "20999001", "Nombre Ficticio", "TH-STU-0001", "NEW-STU-ZZ01", "saw_th_2026", "feel_safe", "th_recall", "study_arm", "treatment"):
+            self.assertNotIn(forbidden, public_json)
+
+    def test_actual_grade_coding(self):
+        self.assertEqual(pipeline.split_grades("2", "students", "actual"), ["2.º"])
+        self.assertEqual(pipeline.split_grades("4", "students", "actual"), ["4.º"])
+        self.assertEqual(pipeline.split_grades("2", "students"), ["3.º"])
+
+    def test_baseline_payload_has_no_quality_checks(self):
+        config = pipeline.expand_env(pipeline.load_json(ROOT / "config" / "forms.json"))
+        raw = {
+            role: pipeline.records_from_json(ROOT / "tests" / "fixtures" / f"{role}.json")
+            for role in ("students", "teachers", "directors")
+        }
+        payload = pipeline.build_payload(raw, {}, config, {}, "unit-test-salt", True)
+        self.assertFalse(payload["wave"]["has_quality_checks"])
+        self.assertIsNone(payload["forms"][0]["quality"])
+
     def test_grouped_xml_headers_are_resolved(self):
         row = {"identification/school_id": "ABC", "meta/student_id": "123"}
         self.assertEqual(pipeline.find_value(row, ["school_id"]), "ABC")
